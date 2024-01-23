@@ -203,12 +203,14 @@ inout	[31:0]	GPIO1_D;				//	GPIO Connection 1 Data Bus
 //=======================================================
 //  REG/WIRE declarations
 //=======================================================
-
+wire VGA_CLOCK;
 
 
 //=======================================================
 //  Structural coding
 //=======================================================
+vga_clock vga_clock0(CLOCK_50, VGA_CLOCK);
+vga_ctrl vga_ctrl0(VGA_CLOCK, !BUTTON[0], VGA_HS, VGA_VS, VGA_R, VGA_G, VGA_B);
 
 
 endmodule
