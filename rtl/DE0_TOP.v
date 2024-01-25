@@ -210,7 +210,17 @@ wire VGA_CLOCK;
 //  Structural coding
 //=======================================================
 vga_clock vga_clock0(CLOCK_50, VGA_CLOCK);
-vga_ctrl vga_ctrl0(VGA_CLOCK, !BUTTON[0], VGA_HS, VGA_VS, VGA_R, VGA_G, VGA_B);
+vga_ctrl vga_ctrl0(
+	.clk(VGA_CLOCK),
+	.reset(!BUTTON[0]), 
+	.hsync(VGA_HS),
+	.vsync(VGA_VS), 
+	.x(),
+	.y(),
+	.red(VGA_R),
+	.green(VGA_G),
+	.blue(VGA_B)
+	);
 
 
 endmodule

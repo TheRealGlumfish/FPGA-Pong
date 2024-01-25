@@ -10,6 +10,8 @@ module vga_ctrl#(
 )(
     input logic clk,
     input logic reset,
+    output logic [9:0] x, // TODO: Parametrize
+    output logic [9:0] y,
     output logic hsync,
     output logic vsync,
     output logic [3:0] red,
@@ -17,68 +19,128 @@ module vga_ctrl#(
     output logic [3:0] blue
 );
 
-logic [9:0] vga_x; // TODO: Parametrize
-logic [9:0] vga_y;
+typedef enum {ACTIVE, FRONT_PORCH, SYNC, BACK_PORCH} VGA_STATE;
 
-always_comb
+VGA_STATE h_state, v_state;
+
+initial
 begin
-    hsync = !(vga_x > WIDTH + H_FRONT_PORCH - 1 && vga_x < WIDTH + H_FRONT_PORCH + H_SYNC - 1);
-    vsync = !(vga_y > HEIGHT + V_FRONT_PORCH - 1 && vga_y < WIDTH + H_FRONT_PORCH + H_SYNC - 1);
+    h_state = ACTIVE;
+    v_state = ACTIVE;
+    x = 0;
+    y = 0;
 end
 
 always_ff@(posedge clk, posedge reset)
 begin
     if(reset)
     begin
-        vga_x <= 0;
-        vga_y <= 0;
-        red <= 8;
-        green <= 8;
-        blue <= 8;
+        h_state <= ACTIVE;
+        v_state <= ACTIVE;
+        x = 0;
+        y = 0;
     end
     else
     begin
-        if(vga_x < WIDTH && vga_y < HEIGHT) // active region
-        begin
-            red <= 8;
-            green <= 8;
-            blue <= 8;
-            vga_x <= vga_x + 1;
-        end
-        if(vga_x >= WIDTH) // horizontal sync
-        begin
-            red <= 0;
-            //green <= vsync^hsync;
-			green <= 0;
-            blue <= 0;
-            vga_x <= vga_x + 1;
-        end
-        if(vga_x >= WIDTH + H_FRONT_PORCH + H_SYNC - 1) // end of horizontal sync
-        begin
-            red <= 0;
-            //green <= vsync^hsync;
-			green <= 0;
-            blue <= 0;
-            vga_x <= 0;
-        end
-        if(vga_y >= HEIGHT) // vertical sync
-        begin
-            red <= 0;
-            //green <= vsync^hsync;
-			green <= 0;
-            blue <= 0;
-            vga_y <= vga_y + 1;
-        end
-        if(vga_y >= HEIGHT + H_FRONT_PORCH + V_SYNC - 1) // end of vertical sync
-        begin
-            red <= 0;
-            //green <= vsync^hsync;
-			green <= 0;
-            vga_y <= 0;
-        end
+        case(h_state)
+            ACTIVE:
+            if(x < WIDTH - 1)
+            begin
+                h_state <= ACTIVE;
+                x <= x + 1;
+            end
+            else
+            begin
+                h_state <= FRONT_PORCH; 
+                x <= 0;
+                y <= y + 1; // potentially change
+            end
+            FRONT_PORCH:
+            if(x < H_FRONT_PORCH - 1)
+            begin
+                h_state <= FRONT_PORCH;
+                x <= x + 1;
+            end
+            else
+            begin
+                h_state <= SYNC;
+                x <= 0;
+            end
+            SYNC:
+            if(x <= H_SYNC - 1)
+            begin
+                h_state <= SYNC;
+                x <= x + 1;
+            end
+            else
+            begin
+                h_state <= BACK_PORCH;
+                x <= 0;
+            end
+            BACK_PORCH:
+            if(x <= H_BACK_PORCH - 1)
+            begin
+                h_state <= BACK_PORCH;
+                x <= x + 1;
+            end
+            else
+            begin
+                h_state <= ACTIVE;
+                x <= 0;
+            end
+        endcase
+        case(v_state)
+            ACTIVE:
+            if(y <= HEIGHT - 1)
+            begin
+                v_state <= ACTIVE;
+            end
+            else
+            begin
+                v_state <= FRONT_PORCH;
+                y <= 0;
+            end
+            FRONT_PORCH:
+            if(y <= V_FRONT_PORCH - 1)
+            begin
+                v_state <= FRONT_PORCH;
+            end
+            else
+            begin
+                v_state <= SYNC;
+                y <= 0;
+            end
+            SYNC:
+            if(y <= V_SYNC - 1)
+            begin
+                v_state <= SYNC;
+            end 
+            else
+            begin
+                v_state <= BACK_PORCH;
+                y <= 0;
+            end
+            BACK_PORCH:
+            if(y <= V_BACK_PORCH - 1)
+            begin
+                v_state <= BACK_PORCH;
+            end
+            else
+            begin
+                v_state <= ACTIVE;
+                y <= 0;
+            end
+        endcase
     end
 end
 
-
+always_comb
+begin     
+    red = (h_state == ACTIVE && v_state == ACTIVE) ? 4'b1111 : 4'b0000;
+    green = (h_state == ACTIVE && v_state == ACTIVE) ? 4'b1111 : 4'b0000; // implement sync pulse on green
+    blue = (h_state == ACTIVE && v_state == ACTIVE) ? 4'b1111 : 4'b0000;
+    hsync = (h_state == SYNC) ? 1'b0 : 1'b1;
+    vsync = (v_state == SYNC) ? 1'b0 : 1'b1;
+end
 
 endmodule
