@@ -12,16 +12,20 @@ module vga_ctrl#(
     input logic reset,
     output logic [9:0] x, // TODO: Parametrize
     output logic [9:0] y,
+    input logic [3:0] red,
+    input logic [3:0] green,
+    input logic [3:0] blue,
     output logic hsync,
     output logic vsync,
-    output logic [3:0] red,
-    output logic [3:0] green,
-    output logic [3:0] blue
+    output logic [3:0] vga_red,
+    output logic [3:0] vga_green,
+    output logic [3:0] vga_blue
 );
 
 typedef enum {ACTIVE, FRONT_PORCH, SYNC, BACK_PORCH} VGA_STATE;
 
-VGA_STATE h_state, v_state;
+VGA_STATE h_state;
+VGA_STATE v_state;
 
 initial
 begin
@@ -92,9 +96,7 @@ begin
         case(v_state)
             ACTIVE:
             if(y <= HEIGHT - 1)
-            begin
                 v_state <= ACTIVE;
-            end
             else
             begin
                 v_state <= FRONT_PORCH;
@@ -102,9 +104,7 @@ begin
             end
             FRONT_PORCH:
             if(y <= V_FRONT_PORCH - 1)
-            begin
                 v_state <= FRONT_PORCH;
-            end
             else
             begin
                 v_state <= SYNC;
@@ -112,9 +112,7 @@ begin
             end
             SYNC:
             if(y <= V_SYNC - 1)
-            begin
                 v_state <= SYNC;
-            end 
             else
             begin
                 v_state <= BACK_PORCH;
@@ -122,9 +120,7 @@ begin
             end
             BACK_PORCH:
             if(y <= V_BACK_PORCH - 1)
-            begin
                 v_state <= BACK_PORCH;
-            end
             else
             begin
                 v_state <= ACTIVE;
@@ -136,9 +132,9 @@ end
 
 always_comb
 begin     
-    red = (h_state == ACTIVE && v_state == ACTIVE) ? 4'b1111 : 4'b0000;
-    green = (h_state == ACTIVE && v_state == ACTIVE) ? 4'b1111 : 4'b0000; // implement sync pulse on green
-    blue = (h_state == ACTIVE && v_state == ACTIVE) ? 4'b1111 : 4'b0000;
+    vga_red = (h_state == ACTIVE && v_state == ACTIVE) ? red : 4'b0000;
+    vga_green = (h_state == ACTIVE && v_state == ACTIVE) ? green : 4'b0000; // implement sync pulse on green
+    vga_blue = (h_state == ACTIVE && v_state == ACTIVE) ? blue : 4'b0000;
     hsync = (h_state == SYNC) ? 1'b0 : 1'b1;
     vsync = (v_state == SYNC) ? 1'b0 : 1'b1;
 end

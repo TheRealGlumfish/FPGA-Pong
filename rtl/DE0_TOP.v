@@ -204,22 +204,30 @@ inout	[31:0]	GPIO1_D;				//	GPIO Connection 1 Data Bus
 //  REG/WIRE declarations
 //=======================================================
 wire VGA_CLOCK;
-
+wire [9:0] VGA_X;
+wire [9:0] VGA_Y;
+wire [3:0] RED;
+wire [3:0] GREEN;
+wire [3:0] BLUE;
 
 //=======================================================
 //  Structural coding
 //=======================================================
 vga_clock vga_clock0(CLOCK_50, VGA_CLOCK);
+checker_pattern vga_pattern(VGA_X, VGA_Y, RED, GREEN, BLUE);
 vga_ctrl vga_ctrl0(
 	.clk(VGA_CLOCK),
 	.reset(!BUTTON[0]), 
+	.x(VGA_X),
+	.y(VGA_Y),
+	.red(RED),
+	.green(GREEN),
+	.blue(BLUE),
 	.hsync(VGA_HS),
 	.vsync(VGA_VS), 
-	.x(),
-	.y(),
-	.red(VGA_R),
-	.green(VGA_G),
-	.blue(VGA_B)
+	.vga_red(VGA_R),
+	.vga_green(VGA_G),
+	.vga_blue(VGA_B)
 	);
 
 

@@ -16,11 +16,14 @@ vga_ctrl DUT(
     .reset(reset),
     .x(VGA_X),
     .y(VGA_Y),
+    .red(4'b1111),
+    .green(4'b1111),
+    .blue(4'b1111),
     .hsync(VGA_HSYNC),
     .vsync(VGA_VSYNC),
-    .red(VGA_RED),
-    .green(VGA_GREEN),
-    .blue(VGA_BLUE)
+    .vga_red(VGA_RED),
+    .vga_green(VGA_GREEN),
+    .vga_blue(VGA_BLUE)
 );
 
 initial
