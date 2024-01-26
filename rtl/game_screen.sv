@@ -13,20 +13,20 @@ module game_screen#(
     output logic [3:0] blue
 );
 
-localparam BALL_SIZE = 2; // ball height/width
+localparam BALL_SIZE = 16; // ball height/width
 
-localparam PADDLE_X = 0; // paddle x-offset
-localparam PADDLE_Y = 0; // paddle y-offset
-localparam PADDLE_WIDTH = 4; // paddle width
-localparam PADDLE_HEIGHT = 20; // paddle height
+localparam PADDLE_X = 25; // paddle x-offset
+localparam PADDLE_Y = 25; // paddle y-offset
+localparam PADDLE_WIDTH = 20; // paddle width
+localparam PADDLE_HEIGHT = 125; // paddle height
 
 localparam PADDLE_RED = 4'hF;
 localparam PADDLE_GREEN = 4'hF;
 localparam PADDLE_BLUE = 4'hF;
 
 localparam BALL_RED = 4'hF;
-localparam BALL_GREEN = 4'hF;
-localparam BALL_BLUE = 4'hF;
+localparam BALL_GREEN = 4'h0;
+localparam BALL_BLUE = 4'h0;
 
 localparam BACKGROUND_RED = 4'h0;
 localparam BACKGROUND_GREEN = 4'h0;
@@ -37,10 +37,10 @@ logic p2_paddle_draw;
 logic ball_draw;
 
 assign p1_paddle_draw = (x >= PADDLE_X && x <= PADDLE_X + PADDLE_WIDTH) 
-                     && (y >= PADDLE_Y + p1_paddle_pos && y <= PADDLE_Y + p1_paddle_pos + PADDLE_WIDTH);
+                     && (y >= PADDLE_Y + p1_paddle_pos && y <= PADDLE_Y + p1_paddle_pos + PADDLE_HEIGHT);
 
 assign p2_paddle_draw = (x < WIDTH - PADDLE_X && x >= WIDTH - PADDLE_X - PADDLE_WIDTH) 
-                     && (y >= PADDLE_Y + p1_paddle_pos && y <= PADDLE_Y + p1_paddle_pos + PADDLE_HEIGHT);
+                     && (y >= PADDLE_Y + p2_paddle_pos && y <= PADDLE_Y + p2_paddle_pos + PADDLE_HEIGHT);
 
 assign ball_draw = (x >= ball_x_pos && x < ball_x_pos + BALL_SIZE)
                 && (y >= ball_y_pos && y < ball_y_pos + BALL_SIZE);

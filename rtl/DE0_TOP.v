@@ -203,6 +203,7 @@ inout	[31:0]	GPIO1_D;				//	GPIO Connection 1 Data Bus
 //=======================================================
 //  REG/WIRE declarations
 //=======================================================
+wire RESET;
 wire VGA_CLOCK;
 wire [9:0] VGA_X;
 wire [9:0] VGA_Y;
@@ -210,18 +211,50 @@ wire [3:0] RED;
 wire [3:0] GREEN;
 wire [3:0] BLUE;
 
+reg [9:0] P1_PADDLE_POS;
+reg [9:0] P2_PADDLE_POS;
+wire PADDLE_TRIGGER;
+
 //=======================================================
 //  Structural coding
 //=======================================================
+assign RESET = !BUTTON[0];
+
 vga_clock vga_clock0(CLOCK_50, VGA_CLOCK);
+
+counter #(100000) paddle_counter(
+	.clk(CLOCK_50),
+	.count(),
+	.trigger(PADDLE_TRIGGER)
+);
+
+always@(posedge PADDLE_TRIGGER, posedge RESET) 
+begin
+	if(RESET)
+	begin
+		P1_PADDLE_POS <= 0;
+		P2_PADDLE_POS <= 0;
+	end
+	else
+	begin
+		if(SW[0])
+			P2_PADDLE_POS <= P2_PADDLE_POS + 1;
+		if(SW[1])
+			P2_PADDLE_POS <= P2_PADDLE_POS - 1;
+		if(SW[2])
+			P1_PADDLE_POS <= P1_PADDLE_POS - 1;
+		if(SW[3])
+			P1_PADDLE_POS <= P1_PADDLE_POS + 1;
+	end
+end
 
 game_screen main_screen(
 	.x(VGA_X),
 	.y(VGA_Y),
-	.p1_paddle_pos(),
-	.p2_paddle_pos(),
-	.ball_x_pos(),
-	.ball_y_pos(),
+	.p1_paddle_pos(P1_PADDLE_POS),
+	.p2_paddle_pos(P2_PADDLE_POS),
+	.ball_x_pos(320),
+	.ball_y_pos(240),
 	.red(RED),
 	.green(GREEN),
 	.blue(BLUE)
@@ -229,7 +262,7 @@ game_screen main_screen(
 
 vga_ctrl vga_ctrl0(
 	.clk(VGA_CLOCK),
-	.reset(!BUTTON[0]), 
+	.reset(RESET), 
 	.x(VGA_X),
 	.y(VGA_Y),
 	.red(RED),
@@ -242,5 +275,10 @@ vga_ctrl vga_ctrl0(
 	.vga_blue(VGA_B)
 );
 
+initial
+begin
+	P1_PADDLE_POS = 0;
+	P2_PADDLE_POS = 0;
+end
 
 endmodule
