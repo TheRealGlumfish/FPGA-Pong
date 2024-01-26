@@ -28,7 +28,12 @@ vga_ctrl DUT(
 
 initial
 begin
-    reset = 0;
+    reset = 1'b1;
+    #20 reset = 0'b0;
+end
+
+initial
+begin
     repeat(500000)
     begin
 	    clk = 1'b1;

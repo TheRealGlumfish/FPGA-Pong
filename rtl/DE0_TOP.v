@@ -214,7 +214,19 @@ wire [3:0] BLUE;
 //  Structural coding
 //=======================================================
 vga_clock vga_clock0(CLOCK_50, VGA_CLOCK);
-checker_pattern vga_pattern(VGA_X, VGA_Y, RED, GREEN, BLUE);
+
+game_screen main_screen(
+	.x(VGA_X),
+	.y(VGA_Y),
+	.p1_paddle_pos(),
+	.p2_paddle_pos(),
+	.ball_x_pos(),
+	.ball_y_pos(),
+	.red(RED),
+	.green(GREEN),
+	.blue(BLUE)
+);
+
 vga_ctrl vga_ctrl0(
 	.clk(VGA_CLOCK),
 	.reset(!BUTTON[0]), 
@@ -228,7 +240,7 @@ vga_ctrl vga_ctrl0(
 	.vga_red(VGA_R),
 	.vga_green(VGA_G),
 	.vga_blue(VGA_B)
-	);
+);
 
 
 endmodule

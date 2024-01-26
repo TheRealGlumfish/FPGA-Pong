@@ -4,8 +4,8 @@ module vga_ctrl#(
     parameter H_FRONT_PORCH = 12,
     parameter H_BACK_PORCH = 48,
     parameter H_SYNC = 96,
-    parameter V_FRONT_PORCH = 12,
-    parameter V_BACK_PORCH = 31,
+    parameter V_FRONT_PORCH = 10,
+    parameter V_BACK_PORCH = 33,
     parameter V_SYNC = 2
 )(
     input logic clk,
